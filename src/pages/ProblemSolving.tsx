@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
@@ -65,17 +64,17 @@ You can return the answer in any order.`,
               {
                 input: '[2,7,11,15]\n9',
                 expectedOutput: '[0,1]',
-                result: 'pending',
+                result: 'pending' as const,
               },
               {
                 input: '[3,2,4]\n6',
                 expectedOutput: '[1,2]',
-                result: 'pending',
+                result: 'pending' as const,
               },
               {
                 input: '[3,3]\n6',
                 expectedOutput: '[0,1]',
-                result: 'pending',
+                result: 'pending' as const,
               }
             ],
             starterCode: `function twoSum(nums, target) {
@@ -125,17 +124,17 @@ You can return the answer in any order.`,
               {
                 input: '[-2,1,-3,4,-1,2,1,-5,4]',
                 expectedOutput: '6',
-                result: 'pending',
+                result: 'pending' as const,
               },
               {
                 input: '[1]',
                 expectedOutput: '1',
-                result: 'pending',
+                result: 'pending' as const,
               },
               {
                 input: '[5,4,-1,7,8]',
                 expectedOutput: '23',
-                result: 'pending',
+                result: 'pending' as const,
               }
             ],
             starterCode: `function maxSubArray(nums) {
@@ -161,7 +160,7 @@ You can return the answer in any order.`,
         
         if (problemData) {
           setProblem(problemData);
-          setTestCases(problemData.testCases);
+          setTestCases(problemData.testCases as TestCase[]);
           setCode(problemData.starterCode);
         } else {
           // If problem not found, create a default one
