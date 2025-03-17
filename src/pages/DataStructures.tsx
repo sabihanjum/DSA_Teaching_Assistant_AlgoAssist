@@ -1,5 +1,6 @@
 
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -10,6 +11,7 @@ import { Search, ArrowRight, CheckCircle, Star } from 'lucide-react';
 
 const DataStructures: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
+  const navigate = useNavigate();
 
   const dsCategories = [
     {
@@ -26,7 +28,8 @@ const DataStructures: React.FC = () => {
             { name: 'Insert', complexity: 'O(n)' },
             { name: 'Delete', complexity: 'O(n)' }
           ],
-          completed: true
+          completed: true,
+          slug: 'arrays'
         },
         { 
           name: 'Linked Lists', 
@@ -37,7 +40,8 @@ const DataStructures: React.FC = () => {
             { name: 'Insert', complexity: 'O(1)' },
             { name: 'Delete', complexity: 'O(1)' }
           ],
-          completed: false
+          completed: false,
+          slug: 'linked-lists'
         },
         { 
           name: 'Stacks', 
@@ -48,7 +52,8 @@ const DataStructures: React.FC = () => {
             { name: 'Peek', complexity: 'O(1)' },
             { name: 'Search', complexity: 'O(n)' }
           ],
-          completed: false
+          completed: false,
+          slug: 'stacks'
         },
         { 
           name: 'Queues', 
@@ -59,7 +64,8 @@ const DataStructures: React.FC = () => {
             { name: 'Peek', complexity: 'O(1)' },
             { name: 'Search', complexity: 'O(n)' }
           ],
-          completed: false
+          completed: false,
+          slug: 'queues'
         },
       ]
     },
@@ -77,7 +83,8 @@ const DataStructures: React.FC = () => {
             { name: 'Insert', complexity: 'O(n)' },
             { name: 'Delete', complexity: 'O(n)' }
           ],
-          completed: false
+          completed: false,
+          slug: 'binary-trees'
         },
         { 
           name: 'Binary Search Trees', 
@@ -88,7 +95,8 @@ const DataStructures: React.FC = () => {
             { name: 'Insert', complexity: 'O(log n)' },
             { name: 'Delete', complexity: 'O(log n)' }
           ],
-          completed: false
+          completed: false,
+          slug: 'binary-search-trees'
         },
         { 
           name: 'AVL Trees', 
@@ -99,7 +107,8 @@ const DataStructures: React.FC = () => {
             { name: 'Insert', complexity: 'O(log n)' },
             { name: 'Delete', complexity: 'O(log n)' }
           ],
-          completed: false
+          completed: false,
+          slug: 'avl-trees'
         },
         { 
           name: 'Heaps', 
@@ -110,7 +119,8 @@ const DataStructures: React.FC = () => {
             { name: 'Delete', complexity: 'O(log n)' },
             { name: 'Heapify', complexity: 'O(n)' }
           ],
-          completed: false
+          completed: false,
+          slug: 'heaps'
         },
       ]
     },
@@ -128,7 +138,8 @@ const DataStructures: React.FC = () => {
             { name: 'Remove Vertex', complexity: 'O(V+E)' },
             { name: 'Remove Edge', complexity: 'O(E)' }
           ],
-          completed: false
+          completed: false,
+          slug: 'directed-graphs'
         },
         { 
           name: 'Undirected Graphs', 
@@ -139,7 +150,8 @@ const DataStructures: React.FC = () => {
             { name: 'Remove Vertex', complexity: 'O(V+E)' },
             { name: 'Remove Edge', complexity: 'O(E)' }
           ],
-          completed: false
+          completed: false,
+          slug: 'undirected-graphs'
         },
         { 
           name: 'Weighted Graphs', 
@@ -150,7 +162,8 @@ const DataStructures: React.FC = () => {
             { name: 'Remove Vertex', complexity: 'O(V+E)' },
             { name: 'Remove Edge', complexity: 'O(E)' }
           ],
-          completed: false
+          completed: false,
+          slug: 'weighted-graphs'
         },
       ]
     },
@@ -168,7 +181,8 @@ const DataStructures: React.FC = () => {
             { name: 'Search', complexity: 'O(1)' },
             { name: 'Collision', complexity: 'O(n)' }
           ],
-          completed: false
+          completed: false,
+          slug: 'hash-tables'
         },
         { 
           name: 'Tries', 
@@ -179,7 +193,8 @@ const DataStructures: React.FC = () => {
             { name: 'Delete', complexity: 'O(m)' },
             { name: 'Prefix Search', complexity: 'O(p)' }
           ],
-          completed: false
+          completed: false,
+          slug: 'tries'
         },
         { 
           name: 'Segment Trees', 
@@ -190,7 +205,8 @@ const DataStructures: React.FC = () => {
             { name: 'Update', complexity: 'O(log n)' },
             { name: 'Range Update', complexity: 'O(log n)' }
           ],
-          completed: false
+          completed: false,
+          slug: 'segment-trees'
         },
         { 
           name: 'Disjoint Sets', 
@@ -201,7 +217,8 @@ const DataStructures: React.FC = () => {
             { name: 'Union', complexity: 'O(α(n))' },
             { name: 'Connected', complexity: 'O(α(n))' }
           ],
-          completed: false
+          completed: false,
+          slug: 'disjoint-sets'
         },
       ]
     },
@@ -213,6 +230,10 @@ const DataStructures: React.FC = () => {
       structure => structure.name.toLowerCase().includes(searchQuery.toLowerCase())
     )
   })).filter(category => category.structures.length > 0);
+
+  const handleLearnMoreClick = (structureSlug: string) => {
+    navigate(`/data-structure/${structureSlug}`);
+  };
 
   return (
     <>
@@ -284,7 +305,10 @@ const DataStructures: React.FC = () => {
                                   ))}
                                 </div>
                               </div>
-                              <Button className="w-full mt-2 gap-1">
+                              <Button 
+                                className="w-full mt-2 gap-1"
+                                onClick={() => handleLearnMoreClick(structure.slug)}
+                              >
                                 Learn More <ArrowRight className="h-3.5 w-3.5" />
                               </Button>
                             </CardContent>

@@ -1,5 +1,6 @@
 
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -14,6 +15,7 @@ const Practice: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [difficultyFilter, setDifficultyFilter] = useState<string>('all');
   const [categoryFilter, setCategoryFilter] = useState<string>('all');
+  const navigate = useNavigate();
 
   const platformLinks = [
     {
@@ -134,6 +136,10 @@ const Practice: React.FC = () => {
 
   const categories = [...new Set(problems.map(p => p.category))].sort();
 
+  const handleSolveProblem = (problemId: number) => {
+    navigate(`/problem/${problemId}`);
+  };
+
   return (
     <>
       <Navbar />
@@ -210,7 +216,7 @@ const Practice: React.FC = () => {
                               }`}>
                                 {problem.difficulty}
                               </span>
-                              <Button>Solve</Button>
+                              <Button onClick={() => handleSolveProblem(problem.id)}>Solve</Button>
                             </div>
                           </div>
                         </CardContent>

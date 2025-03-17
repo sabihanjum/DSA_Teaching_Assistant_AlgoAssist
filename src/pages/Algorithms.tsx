@@ -24,42 +24,48 @@ const Algorithms: React.FC = () => {
           difficulty: 'Easy',
           timeComplexity: 'O(n²)',
           spaceComplexity: 'O(1)',
-          completed: true
+          completed: true,
+          slug: 'bubble-sort'
         },
         { 
           name: 'Selection Sort', 
           difficulty: 'Easy',
           timeComplexity: 'O(n²)',
           spaceComplexity: 'O(1)',
-          completed: true
+          completed: true,
+          slug: 'selection-sort'
         },
         { 
           name: 'Insertion Sort', 
           difficulty: 'Easy',
           timeComplexity: 'O(n²)',
           spaceComplexity: 'O(1)',
-          completed: false
+          completed: false,
+          slug: 'insertion-sort'
         },
         { 
           name: 'Merge Sort', 
           difficulty: 'Medium',
           timeComplexity: 'O(n log n)',
           spaceComplexity: 'O(n)',
-          completed: false
+          completed: false,
+          slug: 'merge-sort'
         },
         { 
           name: 'Quick Sort', 
           difficulty: 'Medium',
           timeComplexity: 'O(n log n)',
           spaceComplexity: 'O(log n)',
-          completed: false
+          completed: false,
+          slug: 'quick-sort'
         },
         { 
           name: 'Heap Sort', 
           difficulty: 'Medium',
           timeComplexity: 'O(n log n)',
           spaceComplexity: 'O(1)',
-          completed: false
+          completed: false,
+          slug: 'heap-sort'
         },
       ]
     },
@@ -73,28 +79,32 @@ const Algorithms: React.FC = () => {
           difficulty: 'Easy',
           timeComplexity: 'O(n)',
           spaceComplexity: 'O(1)',
-          completed: true
+          completed: true,
+          slug: 'linear-search'
         },
         { 
           name: 'Binary Search', 
           difficulty: 'Easy',
           timeComplexity: 'O(log n)',
           spaceComplexity: 'O(1)',
-          completed: false
+          completed: false,
+          slug: 'binary-search'
         },
         { 
           name: 'Breadth-First Search', 
           difficulty: 'Medium',
           timeComplexity: 'O(V + E)',
           spaceComplexity: 'O(V)',
-          completed: false
+          completed: false,
+          slug: 'breadth-first-search'
         },
         { 
           name: 'Depth-First Search', 
           difficulty: 'Medium',
           timeComplexity: 'O(V + E)',
           spaceComplexity: 'O(V)',
-          completed: false
+          completed: false,
+          slug: 'depth-first-search'
         },
       ]
     },
@@ -108,28 +118,32 @@ const Algorithms: React.FC = () => {
           difficulty: 'Medium',
           timeComplexity: 'O(V² + E)',
           spaceComplexity: 'O(V)',
-          completed: false
+          completed: false,
+          slug: 'dijkstras-algorithm'
         },
         { 
           name: 'Bellman-Ford Algorithm', 
           difficulty: 'Hard',
           timeComplexity: 'O(V × E)',
           spaceComplexity: 'O(V)',
-          completed: false
+          completed: false,
+          slug: 'bellman-ford-algorithm'
         },
         { 
           name: 'Kruskal\'s Algorithm', 
           difficulty: 'Medium',
           timeComplexity: 'O(E log E)',
           spaceComplexity: 'O(V + E)',
-          completed: false
+          completed: false,
+          slug: 'kruskals-algorithm'
         },
         { 
           name: 'Prim\'s Algorithm', 
           difficulty: 'Medium',
           timeComplexity: 'O(V² + E)',
           spaceComplexity: 'O(V + E)',
-          completed: false
+          completed: false,
+          slug: 'prims-algorithm'
         },
       ]
     },
@@ -143,28 +157,32 @@ const Algorithms: React.FC = () => {
           difficulty: 'Easy',
           timeComplexity: 'O(n)',
           spaceComplexity: 'O(n)',
-          completed: false
+          completed: false,
+          slug: 'fibonacci-sequence'
         },
         { 
           name: 'Knapsack Problem', 
           difficulty: 'Medium',
           timeComplexity: 'O(n × W)',
           spaceComplexity: 'O(n × W)',
-          completed: false
+          completed: false,
+          slug: 'knapsack-problem'
         },
         { 
           name: 'Longest Common Subsequence', 
           difficulty: 'Medium',
           timeComplexity: 'O(m × n)',
           spaceComplexity: 'O(m × n)',
-          completed: false
+          completed: false,
+          slug: 'longest-common-subsequence'
         },
         { 
           name: 'Matrix Chain Multiplication', 
           difficulty: 'Hard',
           timeComplexity: 'O(n³)',
           spaceComplexity: 'O(n²)',
-          completed: false
+          completed: false,
+          slug: 'matrix-chain-multiplication'
         },
       ]
     },
@@ -176,6 +194,10 @@ const Algorithms: React.FC = () => {
       algo => algo.name.toLowerCase().includes(searchQuery.toLowerCase())
     )
   })).filter(category => category.algorithms.length > 0);
+
+  const handleLearnClick = (algorithmSlug: string) => {
+    navigate(`/algorithm/${algorithmSlug}`);
+  };
 
   return (
     <>
@@ -247,7 +269,12 @@ const Algorithms: React.FC = () => {
                                 </div>
                               </div>
                               <div className="bg-muted p-3 flex justify-end">
-                                <Button variant="ghost" size="sm" className="gap-1">
+                                <Button 
+                                  variant="ghost" 
+                                  size="sm" 
+                                  className="gap-1"
+                                  onClick={() => handleLearnClick(algorithm.slug)}
+                                >
                                   Learn <ArrowRight className="h-3.5 w-3.5" />
                                 </Button>
                               </div>
