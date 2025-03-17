@@ -1,12 +1,14 @@
-
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
+import { UserLevel } from '@/components/UserLevelSelection';
 
 interface User {
   id: string;
   email: string;
   username: string;
+  level?: UserLevel;
+  isFirstLogin?: boolean;
 }
 
 interface AuthContextType {
@@ -16,6 +18,7 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<void>;
   signup: (email: string, username: string, password: string) => Promise<void>;
   logout: () => void;
+  updateUserLevel: (level: UserLevel) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -49,11 +52,24 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       // In a real app, this would validate credentials against a backend
       // For demo purposes, we'll accept any login with email and password length > 5
       if (email && password.length > 5) {
-        const userData: User = {
-          id: `user-${Date.now()}`,
-          email,
-          username: email.split('@')[0],
-        };
+        // Check if this user exists in localStorage (simulating a database)
+        const existingUsers = JSON.parse(localStorage.getItem('users') || '[]');
+        const foundUser = existingUsers.find((u: User) => u.email === email);
+        
+        let userData: User;
+        
+        if (foundUser) {
+          // Existing user
+          userData = foundUser;
+        } else {
+          // New user (only for demo purposes in case someone tries to login without signing up first)
+          userData = {
+            id: `user-${Date.now()}`,
+            email,
+            username: email.split('@')[0],
+            isFirstLogin: true,
+          };
+        }
         
         setUser(userData);
         localStorage.setItem('user', JSON.stringify(userData));
@@ -63,6 +79,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           description: "You have been logged in successfully",
         });
         
+        // If it's their first login and they don't have a level set, redirect to dashboard
+        // The level selection dialog will be shown by the Dashboard component
         navigate('/dashboard');
       } else {
         throw new Error('Invalid credentials');
@@ -91,7 +109,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           id: `user-${Date.now()}`,
           email,
           username,
+          isFirstLogin: true,
         };
+        
+        // Store in localStorage for demo persistence
+        const existingUsers = JSON.parse(localStorage.getItem('users') || '[]');
+        localStorage.setItem('users', JSON.stringify([...existingUsers, userData]));
         
         setUser(userData);
         localStorage.setItem('user', JSON.stringify(userData));
@@ -116,6 +139,26 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
+  const updateUserLevel = (level: UserLevel) => {
+    if (user) {
+      const updatedUser = { 
+        ...user, 
+        level, 
+        isFirstLogin: false 
+      };
+      
+      setUser(updatedUser);
+      localStorage.setItem('user', JSON.stringify(updatedUser));
+      
+      // Also update in the users array
+      const existingUsers = JSON.parse(localStorage.getItem('users') || '[]');
+      const updatedUsers = existingUsers.map((u: User) => 
+        u.id === user.id ? updatedUser : u
+      );
+      localStorage.setItem('users', JSON.stringify(updatedUsers));
+    }
+  };
+
   const logout = () => {
     setUser(null);
     localStorage.removeItem('user');
@@ -135,6 +178,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         login,
         signup,
         logout,
+        updateUserLevel,
       }}
     >
       {children}

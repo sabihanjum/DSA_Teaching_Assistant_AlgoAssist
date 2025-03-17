@@ -1,19 +1,33 @@
 
-import React from 'react';
-import { Navigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { Navigate, Link } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import Navbar from '@/components/Navbar';
 import FadeIn from '@/components/animations/FadeIn';
+import UserLevelSelection, { UserLevel } from '@/components/UserLevelSelection';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { BarChart2, BookOpen, Code, Clock } from 'lucide-react';
+import { BarChart2, BookOpen, Code, Clock, BookMarked, MessageCircle, PenTool, LayoutList } from 'lucide-react';
 
 const Dashboard: React.FC = () => {
-  const { user, isAuthenticated } = useAuth();
+  const { user, isAuthenticated, updateUserLevel } = useAuth();
+  const [showLevelDialog, setShowLevelDialog] = useState(false);
+
+  useEffect(() => {
+    // Check if it's first login and user doesn't have a level yet
+    if (user?.isFirstLogin && !user?.level) {
+      setShowLevelDialog(true);
+    }
+  }, [user]);
 
   if (!isAuthenticated) {
     return <Navigate to="/signin" />;
   }
+
+  const handleLevelSelection = (level: UserLevel) => {
+    updateUserLevel(level);
+    setShowLevelDialog(false);
+  };
 
   const topics = [
     { 
@@ -49,6 +63,38 @@ const Dashboard: React.FC = () => {
     { title: 'Maximum Subarray', difficulty: 'Medium', category: 'Dynamic Programming' },
   ];
 
+  // Hub links for main navigation
+  const hubLinks = [
+    { 
+      title: 'Algorithms', 
+      description: 'Learn common algorithms and their implementation',
+      icon: <BookMarked className="h-10 w-10 text-primary/80" />,
+      path: '/algorithms',
+      color: 'bg-blue-50 border-blue-100'
+    },
+    { 
+      title: 'Data Structures', 
+      description: 'Master fundamental data structures',
+      icon: <LayoutList className="h-10 w-10 text-primary/80" />,
+      path: '/data-structures',
+      color: 'bg-green-50 border-green-100'
+    },
+    { 
+      title: 'Practice', 
+      description: 'Solve coding problems and challenges',
+      icon: <PenTool className="h-10 w-10 text-primary/80" />,
+      path: '/practice',
+      color: 'bg-yellow-50 border-yellow-100'
+    },
+    { 
+      title: 'DSA Assistant', 
+      description: 'Get help with your DSA questions',
+      icon: <MessageCircle className="h-10 w-10 text-primary/80" />,
+      path: '/assistant',
+      color: 'bg-purple-50 border-purple-100'
+    }
+  ];
+
   return (
     <>
       <Navbar />
@@ -57,9 +103,34 @@ const Dashboard: React.FC = () => {
           <FadeIn>
             <header className="mb-8">
               <h1 className="text-3xl font-semibold tracking-tight">Welcome back, {user?.username}</h1>
-              <p className="text-muted-foreground mt-1">Track your progress and continue learning</p>
+              <p className="text-muted-foreground mt-1">
+                {user?.level ? (
+                  <>You're currently at <span className="font-medium text-primary">{user.level}</span> level</>
+                ) : (
+                  <>Complete your profile by selecting your skill level</>
+                )}
+              </p>
             </header>
           </FadeIn>
+
+          {/* Hub cards for main navigation */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+            {hubLinks.map((link, i) => (
+              <FadeIn key={link.title} delay={i * 100}>
+                <Link to={link.path}>
+                  <Card className={`h-full transition-all hover:shadow-md hover:scale-[1.02] ${link.color}`}>
+                    <CardContent className="p-6 flex flex-col items-center text-center">
+                      <div className="rounded-full p-3 mb-4">
+                        {link.icon}
+                      </div>
+                      <h3 className="text-xl font-semibold mb-2">{link.title}</h3>
+                      <p className="text-sm text-muted-foreground">{link.description}</p>
+                    </CardContent>
+                  </Card>
+                </Link>
+              </FadeIn>
+            ))}
+          </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
             <FadeIn delay={100} className="md:col-span-2">
@@ -132,7 +203,9 @@ const Dashboard: React.FC = () => {
                     <CardTitle>Recommended Problems</CardTitle>
                     <CardDescription>Based on your progress and interests</CardDescription>
                   </div>
-                  <Button variant="outline" size="sm">View All</Button>
+                  <Button variant="outline" size="sm" asChild>
+                    <Link to="/practice">View All</Link>
+                  </Button>
                 </div>
               </CardHeader>
               <CardContent>
@@ -158,6 +231,12 @@ const Dashboard: React.FC = () => {
           </FadeIn>
         </div>
       </main>
+
+      {/* Level Selection Dialog */}
+      <UserLevelSelection 
+        open={showLevelDialog} 
+        onSelect={handleLevelSelection} 
+      />
     </>
   );
 };
