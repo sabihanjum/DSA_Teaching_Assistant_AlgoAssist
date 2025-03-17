@@ -15,6 +15,9 @@ import DataStructures from "./pages/DataStructures";
 import Practice from "./pages/Practice";
 import Assistant from "./pages/Assistant";
 import NotFound from "./pages/NotFound";
+import AlgorithmDetail from "./pages/AlgorithmDetail";
+import DataStructureDetail from "./pages/DataStructureDetail";
+import ProblemSolving from "./pages/ProblemSolving";
 
 const queryClient = new QueryClient();
 
@@ -35,6 +38,9 @@ const App = () => (
             <Route path="/data-structures" element={<DataStructures />} />
             <Route path="/practice" element={<Practice />} />
             <Route path="/assistant" element={<Assistant />} />
+            <Route path="/algorithm/:algorithmSlug" element={<AlgorithmDetail />} />
+            <Route path="/data-structure/:structureName" element={<DataStructureDetail />} />
+            <Route path="/practice/:problemId" element={<ProblemSolving />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
