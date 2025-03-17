@@ -55,7 +55,7 @@ const StreakTracker: React.FC<StreakTrackerProps> = ({
             <span>Weekly Progress</span>
             <span>{weekProgress}/7 days</span>
           </div>
-          <Progress value={(weekProgress / 7) * 100} className="h-2 bg-slate-100" indicatorClassName="bg-indigo-500" />
+          <Progress value={(weekProgress / 7) * 100} className="h-2 bg-slate-100" />
         </div>
         
         {showReward ? (

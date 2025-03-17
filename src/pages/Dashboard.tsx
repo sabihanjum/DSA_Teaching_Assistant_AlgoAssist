@@ -8,17 +8,34 @@ import UserLevelSelection, { UserLevel } from '@/components/UserLevelSelection';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { BarChart2, BookOpen, Code, Clock, BookMarked, MessageCircle, PenTool, LayoutList } from 'lucide-react';
+import StreakTracker from '@/components/dashboard/StreakTracker';
+import CompanyProblems from '@/components/dashboard/CompanyProblems';
 
 const Dashboard: React.FC = () => {
   const { user, isAuthenticated, updateUserLevel } = useAuth();
   const [showLevelDialog, setShowLevelDialog] = useState(false);
+  const [dailyStreak, setDailyStreak] = useState(5); // Mock streak data
+  const [unlocked, setUnlocked] = useState(false);
+
+  // Mock company problems
+  const companyProblems = [
+    { id: 101, title: 'Two Sum', company: 'Google', difficulty: 'Easy', locked: false },
+    { id: 102, title: 'LRU Cache', company: 'Amazon', difficulty: 'Medium', locked: true },
+    { id: 103, title: 'Merge Intervals', company: 'Microsoft', difficulty: 'Medium', locked: false },
+    { id: 104, title: 'Word Break', company: 'Facebook', difficulty: 'Hard', locked: true },
+  ];
 
   useEffect(() => {
     // Check if it's first login and user doesn't have a level yet
     if (user?.isFirstLogin && !user?.level) {
       setShowLevelDialog(true);
     }
-  }, [user]);
+    
+    // Mock logic to unlock company problems after 7-day streak
+    if (dailyStreak >= 7) {
+      setUnlocked(true);
+    }
+  }, [user, dailyStreak]);
 
   if (!isAuthenticated) {
     return <Navigate to="/signin" />;
@@ -132,6 +149,7 @@ const Dashboard: React.FC = () => {
             ))}
           </div>
 
+          {/* Streak and Stats Section */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
             <FadeIn delay={100} className="md:col-span-2">
               <Card>
@@ -166,36 +184,24 @@ const Dashboard: React.FC = () => {
             </FadeIn>
 
             <FadeIn delay={200}>
-              <Card className="h-full">
-                <CardHeader className="pb-2">
-                  <CardTitle>Quick Stats</CardTitle>
-                  <CardDescription>Your learning achievements</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="bg-secondary/50 rounded-lg p-4 text-center">
-                      <div className="text-3xl font-bold">12</div>
-                      <div className="text-sm text-muted-foreground">Problems Solved</div>
-                    </div>
-                    <div className="bg-secondary/50 rounded-lg p-4 text-center">
-                      <div className="text-3xl font-bold">4</div>
-                      <div className="text-sm text-muted-foreground">Topics Studied</div>
-                    </div>
-                    <div className="bg-secondary/50 rounded-lg p-4 text-center">
-                      <div className="text-3xl font-bold">3</div>
-                      <div className="text-sm text-muted-foreground">Days Streak</div>
-                    </div>
-                    <div className="bg-secondary/50 rounded-lg p-4 text-center">
-                      <div className="text-3xl font-bold">5h</div>
-                      <div className="text-sm text-muted-foreground">Study Time</div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
+              <StreakTracker 
+                currentStreak={dailyStreak} 
+                longestStreak={10} 
+                lastActivity="Today at 10:30 AM"
+                showReward={dailyStreak >= 7}
+              />
             </FadeIn>
           </div>
 
-          <FadeIn delay={300}>
+          {/* Company Problems Section */}
+          <FadeIn delay={250}>
+            <CompanyProblems 
+              problems={companyProblems} 
+              unlocked={unlocked} 
+            />
+          </FadeIn>
+
+          <FadeIn delay={300} className="mt-8">
             <Card>
               <CardHeader className="pb-2">
                 <div className="flex justify-between items-center">
