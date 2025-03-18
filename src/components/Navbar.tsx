@@ -50,8 +50,8 @@ const Navbar: React.FC = () => {
           to="/" 
           className="flex items-center text-foreground font-semibold text-xl tracking-tight"
         >
-          <span className="font-bold">DSA</span>
-          <span className="ml-1 opacity-70">Assistant</span>
+          <span className="font-bold">Algo</span>
+          <span className="text-blue-500 font-bold">Assist</span>
         </Link>
         
         <div className="hidden md:flex items-center space-x-1">

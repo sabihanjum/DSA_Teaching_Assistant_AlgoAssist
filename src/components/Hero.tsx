@@ -23,15 +23,12 @@ const Hero: React.FC = () => {
       </div>
       
       <div className="container max-w-4xl mx-auto z-10">
-        <FadeIn delay={100}>
-          <span className="inline-block py-1 px-3 mb-4 text-xs font-medium uppercase tracking-wider bg-secondary rounded-full">
-            Next-gen DSA Learning
-          </span>
-        </FadeIn>
-        
         <FadeIn delay={300}>
           <h1 className="text-4xl md:text-6xl font-bold tracking-tight mb-6">
-            Master Data Structures & Algorithms with AI Assistance
+            <span className="block">Master </span>
+            <span className="text-blue-500">Data Structures</span>
+            <span className="block"> & Algorithms</span>
+            <span className="block">Effortlessly</span>
           </h1>
         </FadeIn>
         
@@ -45,19 +42,19 @@ const Hero: React.FC = () => {
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             {isAuthenticated ? (
               <Link to="/dashboard">
-                <Button size="lg" className="px-6 font-medium text-base">
+                <Button size="lg" className="px-6 font-medium text-base bg-blue-600 hover:bg-blue-700">
                   Go to Dashboard
                 </Button>
               </Link>
             ) : (
               <>
                 <Link to="/signup">
-                  <Button size="lg" className="px-6 font-medium text-base">
+                  <Button size="lg" className="px-6 font-medium text-base bg-blue-600 hover:bg-blue-700">
                     Get Started
                   </Button>
                 </Link>
                 <Link to="/signin">
-                  <Button variant="outline" size="lg" className="px-6 font-medium text-base">
+                  <Button variant="outline" size="lg" className="px-6 font-medium text-base border-blue-500 text-blue-500 hover:bg-blue-50">
                     Sign In
                   </Button>
                 </Link>
