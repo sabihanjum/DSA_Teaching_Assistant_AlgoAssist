@@ -17,7 +17,7 @@ const Hero: React.FC = () => {
       
       {/* Floating shapes */}
       <div className="absolute inset-0 -z-10 overflow-hidden">
-        <div className="absolute top-20 left-[10%] w-72 h-72 bg-blue-100 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-float" />
+        <div className="absolute top-20 left-[10%] w-72 h-72 bg-purple-100 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-float" />
         <div className="absolute top-40 right-[15%] w-80 h-80 bg-purple-100 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-float animation-delay-2000" />
         <div className="absolute bottom-20 left-[20%] w-64 h-64 bg-pink-100 rounded-full mix-blend-multiply filter blur-3xl opacity-20 animate-float animation-delay-3000" />
       </div>
@@ -26,7 +26,7 @@ const Hero: React.FC = () => {
         <FadeIn delay={300}>
           <h1 className="text-4xl md:text-6xl font-bold tracking-tight mb-6">
             <span className="block">Master </span>
-            <span className="text-blue-500">Data Structures</span>
+            <span className="text-purple-500">Data Structures</span>
             <span className="block"> & Algorithms</span>
             <span className="block">Effortlessly</span>
           </h1>
@@ -42,19 +42,19 @@ const Hero: React.FC = () => {
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             {isAuthenticated ? (
               <Link to="/dashboard">
-                <Button size="lg" className="px-6 font-medium text-base bg-blue-600 hover:bg-blue-700">
+                <Button size="lg" className="px-6 font-medium text-base bg-purple-600 hover:bg-purple-700">
                   Go to Dashboard
                 </Button>
               </Link>
             ) : (
               <>
                 <Link to="/signup">
-                  <Button size="lg" className="px-6 font-medium text-base bg-blue-600 hover:bg-blue-700">
+                  <Button size="lg" className="px-6 font-medium text-base bg-purple-600 hover:bg-purple-700">
                     Get Started
                   </Button>
                 </Link>
                 <Link to="/signin">
-                  <Button variant="outline" size="lg" className="px-6 font-medium text-base border-blue-500 text-blue-500 hover:bg-blue-50">
+                  <Button variant="outline" size="lg" className="px-6 font-medium text-base border-purple-500 text-purple-500 hover:bg-purple-50">
                     Sign In
                   </Button>
                 </Link>

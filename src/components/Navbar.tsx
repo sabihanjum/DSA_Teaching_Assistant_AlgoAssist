@@ -51,7 +51,7 @@ const Navbar: React.FC = () => {
           className="flex items-center text-foreground font-semibold text-xl tracking-tight"
         >
           <span className="font-bold">Algo</span>
-          <span className="text-blue-500 font-bold">Assist</span>
+          <span className="text-purple-500 font-bold">Assist</span>
         </Link>
         
         <div className="hidden md:flex items-center space-x-1">
@@ -95,7 +95,7 @@ const Navbar: React.FC = () => {
                 </Button>
               </Link>
               <Link to="/signup">
-                <Button size="sm">
+                <Button size="sm" className="bg-purple-600 hover:bg-purple-700">
                   Sign Up
                 </Button>
               </Link>
@@ -191,7 +191,7 @@ const Navbar: React.FC = () => {
                   className="w-full"
                   onClick={closeMobileMenu}
                 >
-                  <Button className="w-full">
+                  <Button className="w-full bg-purple-600 hover:bg-purple-700">
                     Sign Up
                   </Button>
                 </Link>
