@@ -1,11 +1,12 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
-import { Calendar, Gift, Award, Trophy, Star } from 'lucide-react';
-import { Dialog, DialogTrigger } from '@/components/ui/dialog';
+import { Calendar, Gift, Award, Trophy, Star, NotebookPen, PlusCircle } from 'lucide-react';
+import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
+import { Textarea } from '@/components/ui/textarea';
 import ReminderDialog from './ReminderDialog';
 
 interface StreakTrackerProps {
@@ -13,6 +14,11 @@ interface StreakTrackerProps {
   longestStreak: number;
   lastActivity: string;
   showReward: boolean;
+}
+
+interface RevisionNote {
+  date: string;
+  content: string;
 }
 
 const StreakTracker: React.FC<StreakTrackerProps> = ({ 
@@ -24,7 +30,12 @@ const StreakTracker: React.FC<StreakTrackerProps> = ({
   const { toast } = useToast();
   const weekProgress = (currentStreak % 7) || 7;
   const daysUntilReward = 7 - weekProgress;
-
+  const [noteContent, setNoteContent] = useState("");
+  const [notes, setNotes] = useState<RevisionNote[]>([
+    { date: "Today", content: "Learned linked list traversal and binary search implementation" },
+    { date: "Yesterday", content: "Studied stack and queue data structures" }
+  ]);
+  
   const viewRewards = () => {
     toast({
       title: "Premium Problems Unlocked!",
@@ -32,11 +43,26 @@ const StreakTracker: React.FC<StreakTrackerProps> = ({
     });
   };
 
+  const addRevisionNote = () => {
+    if (noteContent.trim()) {
+      const newNote = {
+        date: new Date().toLocaleDateString(),
+        content: noteContent
+      };
+      setNotes([newNote, ...notes]);
+      setNoteContent("");
+      toast({
+        title: "Revision Note Added",
+        description: "Keep tracking your learning journey!",
+      });
+    }
+  };
+
   return (
-    <Card className="border-indigo-100 shadow-sm">
+    <Card className="border-purple-100 shadow-sm">
       <CardHeader className="pb-2">
         <CardTitle className="text-lg flex items-center gap-2">
-          <Calendar className="h-5 w-5 text-indigo-500" />
+          <Calendar className="h-5 w-5 text-purple-500" />
           Daily Streak
         </CardTitle>
         <CardDescription>Keep your streak going to earn rewards</CardDescription>
@@ -44,7 +70,7 @@ const StreakTracker: React.FC<StreakTrackerProps> = ({
       <CardContent>
         <div className="flex justify-between items-center mb-2">
           <div className="flex items-center gap-2">
-            <Trophy className="h-5 w-5 text-yellow-500" />
+            <Trophy className="h-5 w-5 text-amber-500" />
             <span className="font-medium">{currentStreak} day streak</span>
           </div>
           <span className="text-sm text-muted-foreground">Best: {longestStreak} days</span>
@@ -59,10 +85,10 @@ const StreakTracker: React.FC<StreakTrackerProps> = ({
         </div>
         
         {showReward ? (
-          <div className="bg-gradient-to-r from-indigo-50 to-purple-50 p-3 rounded-md border border-indigo-100 mb-4">
+          <div className="bg-gradient-to-r from-purple-50 to-indigo-50 p-3 rounded-md border border-purple-100 mb-4">
             <div className="flex items-start gap-3">
-              <div className="bg-indigo-100 p-2 rounded-full">
-                <Gift className="h-5 w-5 text-indigo-600" />
+              <div className="bg-purple-100 p-2 rounded-full">
+                <Gift className="h-5 w-5 text-purple-600" />
               </div>
               <div>
                 <h4 className="font-medium text-sm">Weekly Reward Unlocked!</h4>
@@ -72,7 +98,7 @@ const StreakTracker: React.FC<StreakTrackerProps> = ({
                 <Button 
                   size="sm" 
                   onClick={viewRewards}
-                  className="bg-indigo-600 hover:bg-indigo-700 text-xs h-8"
+                  className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-xs h-8"
                 >
                   Claim Reward
                 </Button>
@@ -83,7 +109,7 @@ const StreakTracker: React.FC<StreakTrackerProps> = ({
           <div className="bg-secondary/30 p-3 rounded-md border border-secondary/20 mb-4">
             <div className="flex items-start gap-3">
               <div className="bg-secondary p-2 rounded-full">
-                <Award className="h-5 w-5 text-indigo-600" />
+                <Award className="h-5 w-5 text-purple-600" />
               </div>
               <div>
                 <h4 className="font-medium text-sm">Keep Going!</h4>
@@ -95,13 +121,63 @@ const StreakTracker: React.FC<StreakTrackerProps> = ({
           </div>
         )}
         
+        {/* Revision Notes Section */}
+        <div className="mb-3">
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center gap-1.5 text-sm font-medium">
+              <NotebookPen className="h-4 w-4 text-purple-500" />
+              <span>Revision Notes</span>
+            </div>
+            <Dialog>
+              <DialogTrigger asChild>
+                <Button variant="ghost" size="icon" className="h-7 w-7">
+                  <PlusCircle className="h-4 w-4 text-purple-500" />
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Add Revision Note</DialogTitle>
+                  <DialogDescription>
+                    Keep track of what you've learned today to help with your revision.
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="py-4">
+                  <Textarea
+                    placeholder="What did you learn today? (e.g., Mastered binary search algorithm)"
+                    value={noteContent}
+                    onChange={(e) => setNoteContent(e.target.value)}
+                    className="min-h-[120px]"
+                  />
+                </div>
+                <DialogFooter>
+                  <Button
+                    onClick={addRevisionNote}
+                    className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700"
+                  >
+                    Save Note
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+          </div>
+          
+          <div className="space-y-2 max-h-[120px] overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-purple-100">
+            {notes.map((note, index) => (
+              <div key={index} className="bg-slate-50 p-2 rounded-md border border-slate-100 text-xs">
+                <div className="font-medium text-purple-700 mb-0.5">{note.date}</div>
+                <div className="text-slate-700">{note.content}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+        
         <div className="flex justify-between">
           <div className="text-xs text-muted-foreground">
             Last activity: {lastActivity}
           </div>
           <Dialog>
             <DialogTrigger asChild>
-              <Button variant="link" className="text-xs p-0 h-auto">
+              <Button variant="link" className="text-xs p-0 h-auto text-purple-600 hover:text-purple-800">
                 Set Reminder
               </Button>
             </DialogTrigger>
