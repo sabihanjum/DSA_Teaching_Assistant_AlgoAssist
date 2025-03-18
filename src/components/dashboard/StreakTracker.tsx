@@ -4,9 +4,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
-import { Calendar, Gift, Award, Trophy, Star, NotebookPen, PlusCircle } from 'lucide-react';
+import { Calendar, Gift, Award, Trophy, Star, BookText, PlusCircle, Bookmark } from 'lucide-react';
 import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import ReminderDialog from './ReminderDialog';
 
 interface StreakTrackerProps {
@@ -121,53 +122,63 @@ const StreakTracker: React.FC<StreakTrackerProps> = ({
           </div>
         )}
         
-        {/* Revision Notes Section */}
+        {/* Revision Notes Section - Made more prominent */}
         <div className="mb-3">
-          <div className="flex items-center justify-between mb-2">
-            <div className="flex items-center gap-1.5 text-sm font-medium">
-              <NotebookPen className="h-4 w-4 text-purple-500" />
-              <span>Revision Notes</span>
-            </div>
-            <Dialog>
-              <DialogTrigger asChild>
-                <Button variant="ghost" size="icon" className="h-7 w-7">
-                  <PlusCircle className="h-4 w-4 text-purple-500" />
-                </Button>
-              </DialogTrigger>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>Add Revision Note</DialogTitle>
-                  <DialogDescription>
-                    Keep track of what you've learned today to help with your revision.
-                  </DialogDescription>
-                </DialogHeader>
-                <div className="py-4">
-                  <Textarea
-                    placeholder="What did you learn today? (e.g., Mastered binary search algorithm)"
-                    value={noteContent}
-                    onChange={(e) => setNoteContent(e.target.value)}
-                    className="min-h-[120px]"
-                  />
-                </div>
-                <DialogFooter>
-                  <Button
-                    onClick={addRevisionNote}
-                    className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700"
-                  >
-                    Save Note
-                  </Button>
-                </DialogFooter>
-              </DialogContent>
-            </Dialog>
-          </div>
-          
-          <div className="space-y-2 max-h-[120px] overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-purple-100">
-            {notes.map((note, index) => (
-              <div key={index} className="bg-slate-50 p-2 rounded-md border border-slate-100 text-xs">
-                <div className="font-medium text-purple-700 mb-0.5">{note.date}</div>
-                <div className="text-slate-700">{note.content}</div>
+          <div className="bg-indigo-50 rounded-md p-3 mb-3 border border-indigo-100">
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-1.5">
+                <BookText className="h-5 w-5 text-indigo-600" />
+                <span className="font-medium text-indigo-700">My Revision Notes</span>
               </div>
-            ))}
+              <Dialog>
+                <DialogTrigger asChild>
+                  <Button variant="outline" size="sm" className="h-8 border-indigo-200 bg-white text-indigo-700 hover:bg-indigo-50">
+                    <PlusCircle className="h-4 w-4 mr-1" />
+                    Add Note
+                  </Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Add Revision Note</DialogTitle>
+                    <DialogDescription>
+                      Keep track of what you've learned today to help with your revision.
+                    </DialogDescription>
+                  </DialogHeader>
+                  <div className="py-4">
+                    <Textarea
+                      placeholder="What did you learn today? (e.g., Mastered binary search algorithm)"
+                      value={noteContent}
+                      onChange={(e) => setNoteContent(e.target.value)}
+                      className="min-h-[120px]"
+                    />
+                  </div>
+                  <DialogFooter>
+                    <Button
+                      onClick={addRevisionNote}
+                      className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700"
+                    >
+                      Save Note
+                    </Button>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
+            </div>
+            
+            <ScrollArea className="h-[130px] rounded-md">
+              <div className="space-y-2 pr-2">
+                {notes.map((note, index) => (
+                  <div key={index} className="bg-white p-3 rounded-md border border-indigo-100 text-sm shadow-sm">
+                    <div className="flex items-center justify-between mb-1">
+                      <div className="font-medium text-indigo-700 flex items-center gap-1.5">
+                        <Bookmark className="h-3.5 w-3.5" />
+                        {note.date}
+                      </div>
+                    </div>
+                    <div className="text-slate-700">{note.content}</div>
+                  </div>
+                ))}
+              </div>
+            </ScrollArea>
           </div>
         </div>
         
