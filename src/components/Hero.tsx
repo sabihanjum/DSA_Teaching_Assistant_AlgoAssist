@@ -28,7 +28,6 @@ const Hero: React.FC = () => {
             <span className="block">Master </span>
             <span className="text-purple-500">Data Structures</span>
             <span className="block"> & Algorithms</span>
-            <span className="block">Effortlessly</span>
           </h1>
         </FadeIn>
         

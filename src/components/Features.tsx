@@ -13,9 +13,9 @@ interface FeatureCardProps {
 
 const FeatureCard: React.FC<FeatureCardProps> = ({ icon, title, description, delay }) => (
   <FadeIn delay={delay}>
-    <Card className="h-full border border-border/50 bg-background/50 backdrop-blur-sm transition-all duration-300 hover:shadow-lg hover:bg-background/80">
+    <Card className="h-full border border-purple-200 bg-purple-50/50 backdrop-blur-sm transition-all duration-300 hover:shadow-lg hover:bg-purple-50/80">
       <CardHeader className="pb-2">
-        <div className="w-12 h-12 flex items-center justify-center rounded-lg bg-primary/5 text-primary mb-4">
+        <div className="w-12 h-12 flex items-center justify-center rounded-lg bg-purple-100 text-purple-600 mb-4">
           {icon}
         </div>
         <CardTitle className="text-xl">{title}</CardTitle>
