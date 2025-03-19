@@ -67,7 +67,7 @@ const AlgorithmVisualizer: React.FC<AlgorithmVisualizerProps> = ({
     let visualizationSteps: VisualizationStep[] = [];
     
     const initialStep: VisualizationStep = {
-      array: initialArray.map(value => ({ value, status: 'default' })),
+      array: initialArray.map(value => ({ value, status: 'default' as const })),
       description: 'Initial array'
     };
     
@@ -170,9 +170,9 @@ const AlgorithmVisualizer: React.FC<AlgorithmVisualizerProps> = ({
     const steps: VisualizationStep[] = [];
     const sortedArray = [...arr].sort((a, b) => a - b);
     
-    // Initial state
+    // Initial state - make sure to use explicit type literals
     steps.push({
-      array: sortedArray.map(value => ({ value, status: 'default' })),
+      array: sortedArray.map(value => ({ value, status: 'default' as const })),
       description: `Searching for ${target} in the sorted array`
     });
     
@@ -182,15 +182,15 @@ const AlgorithmVisualizer: React.FC<AlgorithmVisualizerProps> = ({
     while (left <= right) {
       const mid = Math.floor((left + right) / 2);
       
-      // Mark current range and midpoint
+      // Mark current range and midpoint - use type literals to ensure type safety
       steps.push({
         array: sortedArray.map((value, index) => ({
           value,
           status: index === mid 
-            ? 'current' 
+            ? 'current' as const
             : index >= left && index <= right 
-              ? 'comparing' 
-              : 'default'
+              ? 'comparing' as const
+              : 'default' as const
         })),
         description: `Checking middle element ${sortedArray[mid]} at index ${mid}`
       });
@@ -200,7 +200,7 @@ const AlgorithmVisualizer: React.FC<AlgorithmVisualizerProps> = ({
         steps.push({
           array: sortedArray.map((value, index) => ({
             value,
-            status: index === mid ? 'sorted' : 'default'
+            status: index === mid ? 'sorted' as const : 'default' as const
           })),
           description: `Found ${target} at index ${mid}!`
         });
@@ -212,8 +212,8 @@ const AlgorithmVisualizer: React.FC<AlgorithmVisualizerProps> = ({
           array: sortedArray.map((value, index) => ({
             value,
             status: index < left || index > right 
-              ? 'default' 
-              : 'comparing'
+              ? 'default' as const
+              : 'comparing' as const
           })),
           description: `${sortedArray[mid]} < ${target}, search the right half`
         });
@@ -224,8 +224,8 @@ const AlgorithmVisualizer: React.FC<AlgorithmVisualizerProps> = ({
           array: sortedArray.map((value, index) => ({
             value,
             status: index < left || index > right 
-              ? 'default' 
-              : 'comparing'
+              ? 'default' as const
+              : 'comparing' as const
           })),
           description: `${sortedArray[mid]} > ${target}, search the left half`
         });
@@ -235,7 +235,7 @@ const AlgorithmVisualizer: React.FC<AlgorithmVisualizerProps> = ({
     // If target not found
     if (steps[steps.length - 1].description.indexOf("Found") === -1) {
       steps.push({
-        array: sortedArray.map(value => ({ value, status: 'default' })),
+        array: sortedArray.map(value => ({ value, status: 'default' as const })),
         description: `${target} not found in the array`
       });
     }
