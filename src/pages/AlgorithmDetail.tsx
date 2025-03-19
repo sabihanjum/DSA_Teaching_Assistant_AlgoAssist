@@ -1,12 +1,12 @@
-
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ArrowLeft, Code, BookOpen, PlayCircle } from 'lucide-react';
+import { ArrowLeft, Code, BookOpen, PlayCircle, Activity } from 'lucide-react';
 import FadeIn from '@/components/animations/FadeIn';
+import AlgorithmVisualizer from '@/components/visualizations/AlgorithmVisualizer';
 
 const AlgorithmDetail: React.FC = () => {
   const { algorithmSlug } = useParams();
@@ -15,12 +15,9 @@ const AlgorithmDetail: React.FC = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Simulate fetching data from an API
     const fetchAlgorithmData = () => {
       setLoading(true);
-      // This would be an API call in a real application
       setTimeout(() => {
-        // Mock data based on the algorithm slug
         const mockData = {
           'bubble-sort': {
             name: 'Bubble Sort',
@@ -37,20 +34,15 @@ const AlgorithmDetail: React.FC = () => {
   const n = arr.length;
   
   for (let i = 0; i < n; i++) {
-    // Flag to optimize - if no swaps occur in a pass, array is sorted
     let swapped = false;
     
-    // Last i elements are already in place
     for (let j = 0; j < n - i - 1; j++) {
-      // Compare adjacent elements
       if (arr[j] > arr[j + 1]) {
-        // Swap them if they are in wrong order
         [arr[j], arr[j + 1]] = [arr[j + 1], arr[j]];
         swapped = true;
       }
     }
     
-    // If no swapping occurred in this pass, array is sorted
     if (!swapped) break;
   }
   
@@ -94,25 +86,19 @@ const AlgorithmDetail: React.FC = () => {
   let right = arr.length - 1;
   
   while (left <= right) {
-    // Calculate middle index (avoiding integer overflow)
     const mid = Math.floor((left + right) / 2);
     
-    // Check if target is at mid
     if (arr[mid] === target) {
       return mid;
     }
     
-    // If target is greater, ignore left half
     if (arr[mid] < target) {
       left = mid + 1;
-    }
-    // If target is smaller, ignore right half
-    else {
+    } else {
       right = mid - 1;
     }
   }
   
-  // Target not found
   return -1;
 }`,
             examples: [
@@ -138,7 +124,6 @@ const AlgorithmDetail: React.FC = () => {
           }
         };
 
-        // Handle case where algorithm slug doesn't match any known algorithms
         setAlgorithm(mockData[algorithmSlug as keyof typeof mockData] || {
           name: algorithmSlug?.replace(/-/g, ' '),
           description: 'Algorithm details not found.',
@@ -244,8 +229,11 @@ const AlgorithmDetail: React.FC = () => {
           </FadeIn>
 
           <FadeIn delay={200}>
-            <Tabs defaultValue="implementation" className="mb-8">
+            <Tabs defaultValue="visualization" className="mb-8">
               <TabsList className="w-full justify-start overflow-x-auto">
+                <TabsTrigger value="visualization" className="gap-2">
+                  <Activity className="h-4 w-4" /> Visualization
+                </TabsTrigger>
                 <TabsTrigger value="implementation" className="gap-2">
                   <Code className="h-4 w-4" /> Implementation
                 </TabsTrigger>
@@ -256,6 +244,14 @@ const AlgorithmDetail: React.FC = () => {
                   <BookOpen className="h-4 w-4" /> Applications
                 </TabsTrigger>
               </TabsList>
+              
+              <TabsContent value="visualization" className="mt-4">
+                <Card className="border-indigo-100 shadow-sm">
+                  <CardContent className="pt-6">
+                    <AlgorithmVisualizer algorithm={algorithm.name} />
+                  </CardContent>
+                </Card>
+              </TabsContent>
               
               <TabsContent value="implementation" className="mt-4">
                 <Card className="border-indigo-100 shadow-sm">
