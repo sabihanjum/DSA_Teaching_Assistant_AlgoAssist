@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Navigate, Link } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
@@ -12,9 +11,8 @@ import StreakTracker from '@/components/dashboard/StreakTracker';
 import CompanyProblems from '@/components/dashboard/CompanyProblems';
 
 const Dashboard: React.FC = () => {
-  const { user, isAuthenticated, updateUserLevel } = useAuth();
+  const { user, isAuthenticated, updateUserLevel, recordActivity } = useAuth();
   const [showLevelDialog, setShowLevelDialog] = useState(false);
-  const [dailyStreak, setDailyStreak] = useState(5); // Mock streak data
   const [unlocked, setUnlocked] = useState(false);
 
   // Mock company problems
@@ -26,16 +24,37 @@ const Dashboard: React.FC = () => {
   ];
 
   useEffect(() => {
+    // Record user activity on dashboard visit
+    if (isAuthenticated) {
+      recordActivity();
+      
+      // Check if problems should be unlocked based on streak
+      checkUnlockedStatus();
+    }
+    
     // Check if it's first login and user doesn't have a level yet
     if (user?.isFirstLogin && !user?.level) {
       setShowLevelDialog(true);
     }
+  }, [user, isAuthenticated]);
+  
+  // Check if problems should be unlocked based on streak
+  const checkUnlockedStatus = () => {
+    if (!user) return;
     
-    // Mock logic to unlock company problems after 7-day streak
-    if (dailyStreak >= 7) {
-      setUnlocked(true);
+    const streakKey = `streak-${user.id}`;
+    const storedData = localStorage.getItem(streakKey);
+    
+    if (storedData) {
+      try {
+        const data = JSON.parse(storedData);
+        // Unlock if current streak is 7 or more
+        setUnlocked(data.currentStreak >= 7);
+      } catch (error) {
+        console.error('Failed to parse streak data', error);
+      }
     }
-  }, [user, dailyStreak]);
+  };
 
   if (!isAuthenticated) {
     return <Navigate to="/signin" />;
@@ -184,12 +203,7 @@ const Dashboard: React.FC = () => {
             </FadeIn>
 
             <FadeIn delay={200}>
-              <StreakTracker 
-                currentStreak={dailyStreak} 
-                longestStreak={10} 
-                lastActivity="Today at 10:30 AM"
-                showReward={dailyStreak >= 7}
-              />
+              <StreakTracker />
             </FadeIn>
           </div>
 

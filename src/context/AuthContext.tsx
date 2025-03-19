@@ -19,6 +19,7 @@ interface AuthContextType {
   signup: (email: string, username: string, password: string) => Promise<void>;
   logout: () => void;
   updateUserLevel: (level: UserLevel) => void;
+  recordActivity: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -35,6 +36,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (storedUser) {
       try {
         setUser(JSON.parse(storedUser));
+        // Initialize or update streak when user is loaded
+        updateUserStreakOnLogin();
       } catch (error) {
         console.error('Failed to parse stored user', error);
         localStorage.removeItem('user');
@@ -42,6 +45,116 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
     setIsLoading(false);
   }, []);
+
+  // Initialize or update user streak
+  const updateUserStreakOnLogin = () => {
+    const today = new Date().toLocaleDateString();
+    const userId = user?.id;
+    
+    if (!userId) return;
+
+    const streakKey = `streak-${userId}`;
+    let streakData = localStorage.getItem(streakKey);
+    
+    if (!streakData) {
+      // First time user, initialize streak data
+      const initialStreak = {
+        currentStreak: 1,
+        longestStreak: 1,
+        lastLoginDate: today,
+        weeklyProgress: [1, 0, 0, 0, 0, 0, 0], // Today is active
+      };
+      localStorage.setItem(streakKey, JSON.stringify(initialStreak));
+      return;
+    }
+    
+    try {
+      const parsedData = JSON.parse(streakData);
+      const lastLoginDate = parsedData.lastLoginDate;
+      
+      // Already logged in today
+      if (lastLoginDate === today) {
+        return;
+      }
+      
+      // Check if the last login was yesterday
+      const lastDate = new Date(lastLoginDate);
+      const yesterday = new Date();
+      yesterday.setDate(yesterday.getDate() - 1);
+      
+      const isConsecutiveDay = lastDate.toLocaleDateString() === yesterday.toLocaleDateString();
+      
+      // Update weekly progress
+      let weeklyProgress = [...parsedData.weeklyProgress];
+      weeklyProgress.pop(); // Remove oldest day
+      weeklyProgress.unshift(1); // Add today
+      
+      if (isConsecutiveDay) {
+        // Continue streak
+        const newStreak = parsedData.currentStreak + 1;
+        const newLongest = Math.max(newStreak, parsedData.longestStreak);
+        
+        const updatedData = {
+          ...parsedData,
+          currentStreak: newStreak,
+          longestStreak: newLongest,
+          lastLoginDate: today,
+          weeklyProgress,
+        };
+        
+        localStorage.setItem(streakKey, JSON.stringify(updatedData));
+        
+        // Show streak milestone notification
+        if (newStreak % 7 === 0) {
+          toast({
+            title: "Weekly Streak Achievement!",
+            description: "You've unlocked premium features for maintaining your streak!",
+          });
+        }
+      } else {
+        // Streak broken, reset to 1
+        const updatedData = {
+          ...parsedData,
+          currentStreak: 1,
+          lastLoginDate: today,
+          weeklyProgress,
+        };
+        
+        localStorage.setItem(streakKey, JSON.stringify(updatedData));
+      }
+    } catch (error) {
+      console.error('Error updating streak:', error);
+    }
+  };
+
+  // Record any user activity (can be used for specific activities)
+  const recordActivity = () => {
+    if (!user) return;
+    
+    const today = new Date().toLocaleDateString();
+    const streakKey = `streak-${user.id}`;
+    let streakData = localStorage.getItem(streakKey);
+    
+    if (!streakData) {
+      // Initialize if not exists
+      updateUserStreakOnLogin();
+      return;
+    }
+    
+    try {
+      const parsedData = JSON.parse(streakData);
+      
+      // Update last activity time for today
+      const updatedData = {
+        ...parsedData,
+        lastLoginDate: today,
+      };
+      
+      localStorage.setItem(streakKey, JSON.stringify(updatedData));
+    } catch (error) {
+      console.error('Error recording activity:', error);
+    }
+  };
 
   const login = async (email: string, password: string) => {
     setIsLoading(true);
@@ -73,6 +186,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         
         setUser(userData);
         localStorage.setItem('user', JSON.stringify(userData));
+        
+        // Initialize or update streak data
+        setTimeout(() => updateUserStreakOnLogin(), 100);
         
         toast({
           title: "Success",
@@ -118,6 +234,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         
         setUser(userData);
         localStorage.setItem('user', JSON.stringify(userData));
+        
+        // Initialize streak data for new user
+        setTimeout(() => updateUserStreakOnLogin(), 100);
         
         toast({
           title: "Account created",
@@ -179,6 +298,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         signup,
         logout,
         updateUserLevel,
+        recordActivity,
       }}
     >
       {children}

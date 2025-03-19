@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
@@ -9,35 +9,114 @@ import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, Dialog
 import { Textarea } from '@/components/ui/textarea';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import ReminderDialog from './ReminderDialog';
-
-interface StreakTrackerProps {
-  currentStreak: number;
-  longestStreak: number;
-  lastActivity: string;
-  showReward: boolean;
-}
+import { useAuth } from '@/context/AuthContext';
 
 interface RevisionNote {
   date: string;
   content: string;
 }
 
-const StreakTracker: React.FC<StreakTrackerProps> = ({ 
-  currentStreak, 
-  longestStreak, 
-  lastActivity,
-  showReward
-}) => {
+const StreakTracker: React.FC = () => {
   const { toast } = useToast();
-  const weekProgress = (currentStreak % 7) || 7;
-  const daysUntilReward = 7 - weekProgress;
+  const { user, recordActivity } = useAuth();
   const [noteContent, setNoteContent] = useState("");
-  const [notes, setNotes] = useState<RevisionNote[]>([
-    { date: "Today", content: "Learned linked list traversal and binary search implementation" },
-    { date: "Yesterday", content: "Studied stack and queue data structures" }
-  ]);
+  const [notes, setNotes] = useState<RevisionNote[]>([]);
+  
+  // Streak state
+  const [currentStreak, setCurrentStreak] = useState(0);
+  const [longestStreak, setLongestStreak] = useState(0);
+  const [lastActivity, setLastActivity] = useState("");
+  const [weekProgress, setWeekProgress] = useState(0);
+  const [showReward, setShowReward] = useState(false);
+  
+  // Load streak data on component mount
+  useEffect(() => {
+    if (user) {
+      loadStreakData();
+      loadNotes();
+      recordActivity(); // Record today's activity
+    }
+  }, [user]);
+  
+  const loadStreakData = () => {
+    if (!user) return;
+    
+    const streakKey = `streak-${user.id}`;
+    const storedData = localStorage.getItem(streakKey);
+    
+    if (storedData) {
+      try {
+        const data = JSON.parse(storedData);
+        setCurrentStreak(data.currentStreak);
+        setLongestStreak(data.longestStreak);
+        setLastActivity(formatLastActivity(data.lastLoginDate));
+        
+        // Calculate week progress (1-7)
+        const progress = data.currentStreak % 7 || 7;
+        setWeekProgress(progress);
+        setShowReward(progress === 7);
+        
+      } catch (error) {
+        console.error('Failed to parse streak data', error);
+      }
+    }
+  };
+  
+  const loadNotes = () => {
+    if (!user) return;
+    
+    const notesKey = `notes-${user.id}`;
+    const storedNotes = localStorage.getItem(notesKey);
+    
+    if (storedNotes) {
+      try {
+        setNotes(JSON.parse(storedNotes));
+      } catch (error) {
+        console.error('Failed to parse notes', error);
+      }
+    } else {
+      // Set default notes for new users
+      const defaultNotes = [
+        { date: "Today", content: "Learned linked list traversal and binary search implementation" },
+        { date: "Yesterday", content: "Studied stack and queue data structures" }
+      ];
+      setNotes(defaultNotes);
+      localStorage.setItem(notesKey, JSON.stringify(defaultNotes));
+    }
+  };
+  
+  const formatLastActivity = (dateString: string) => {
+    const date = new Date(dateString);
+    const today = new Date();
+    const yesterday = new Date(today);
+    yesterday.setDate(yesterday.getDate() - 1);
+    
+    if (date.toDateString() === today.toDateString()) {
+      return `Today at ${date.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}`;
+    } else if (date.toDateString() === yesterday.toDateString()) {
+      return `Yesterday at ${date.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}`;
+    } else {
+      return date.toLocaleDateString() + ` at ${date.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })}`;
+    }
+  };
   
   const viewRewards = () => {
+    // Mark reward as claimed
+    if (user) {
+      const streakKey = `streak-${user.id}`;
+      const storedData = localStorage.getItem(streakKey);
+      
+      if (storedData) {
+        try {
+          const data = JSON.parse(storedData);
+          data.rewardClaimed = true;
+          localStorage.setItem(streakKey, JSON.stringify(data));
+        } catch (error) {
+          console.error('Failed to update streak data', error);
+        }
+      }
+    }
+    
     toast({
       title: "Premium Problems Unlocked!",
       description: "You've unlocked exclusive company interview problems. Check the Practice section.",
@@ -45,19 +124,29 @@ const StreakTracker: React.FC<StreakTrackerProps> = ({
   };
 
   const addRevisionNote = () => {
-    if (noteContent.trim()) {
-      const newNote = {
-        date: new Date().toLocaleDateString(),
-        content: noteContent
-      };
-      setNotes([newNote, ...notes]);
-      setNoteContent("");
-      toast({
-        title: "Revision Note Added",
-        description: "Keep tracking your learning journey!",
-      });
-    }
+    if (!user || !noteContent.trim()) return;
+    
+    const notesKey = `notes-${user.id}`;
+    const newNote = {
+      date: new Date().toLocaleDateString(),
+      content: noteContent
+    };
+    
+    const updatedNotes = [newNote, ...notes];
+    setNotes(updatedNotes);
+    localStorage.setItem(notesKey, JSON.stringify(updatedNotes));
+    setNoteContent("");
+    
+    // Record activity when adding a note
+    recordActivity();
+    
+    toast({
+      title: "Revision Note Added",
+      description: "Keep tracking your learning journey!",
+    });
   };
+
+  const daysUntilReward = 7 - weekProgress;
 
   return (
     <Card className="border-purple-100 shadow-sm">
