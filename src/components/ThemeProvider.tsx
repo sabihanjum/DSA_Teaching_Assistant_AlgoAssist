@@ -20,6 +20,16 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
   const [mounted, setMounted] = useState(false);
   const { theme, setTheme, resolvedTheme } = useNextTheme();
   
+  // Apply dark class to document when theme changes
+  useEffect(() => {
+    const isDark = resolvedTheme === "dark";
+    if (isDark) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+  }, [resolvedTheme]);
+
   // Only show the UI after the theme is resolved to prevent flashing
   useEffect(() => {
     setMounted(true);
