@@ -4,6 +4,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/context/AuthContext';
 import { cn } from '@/lib/utils';
+import { NavbarThemeToggle } from './NavbarThemeToggle';
 
 const Navbar: React.FC = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -78,29 +79,33 @@ const Navbar: React.FC = () => {
             </ul>
           </nav>
           
-          {isAuthenticated ? (
-            <div className="flex items-center space-x-2">
-              <Link to="/dashboard">
-                <Button variant="ghost" size="sm">Dashboard</Button>
-              </Link>
-              <Button variant="outline" size="sm" onClick={logout}>
-                Sign Out
-              </Button>
-            </div>
-          ) : (
-            <div className="flex items-center space-x-2">
-              <Link to="/signin">
-                <Button variant="ghost" size="sm">
-                  Sign In
+          <div className="flex items-center space-x-2">
+            {isAuthenticated ? (
+              <div className="flex items-center space-x-2">
+                <Link to="/dashboard">
+                  <Button variant="ghost" size="sm">Dashboard</Button>
+                </Link>
+                <Button variant="outline" size="sm" onClick={logout}>
+                  Sign Out
                 </Button>
-              </Link>
-              <Link to="/signup">
-                <Button size="sm" className="bg-purple-600 hover:bg-purple-700">
-                  Sign Up
-                </Button>
-              </Link>
-            </div>
-          )}
+                <NavbarThemeToggle />
+              </div>
+            ) : (
+              <div className="flex items-center space-x-2">
+                <Link to="/signin">
+                  <Button variant="ghost" size="sm">
+                    Sign In
+                  </Button>
+                </Link>
+                <Link to="/signup">
+                  <Button size="sm" className="bg-purple-600 hover:bg-purple-700">
+                    Sign Up
+                  </Button>
+                </Link>
+                <NavbarThemeToggle />
+              </div>
+            )}
+          </div>
         </div>
         
         <button
@@ -174,6 +179,9 @@ const Navbar: React.FC = () => {
                 >
                   Sign Out
                 </Button>
+                <div className="flex justify-start w-full py-2">
+                  <NavbarThemeToggle />
+                </div>
               </>
             ) : (
               <>
@@ -195,6 +203,9 @@ const Navbar: React.FC = () => {
                     Sign Up
                   </Button>
                 </Link>
+                <div className="flex justify-start w-full py-2">
+                  <NavbarThemeToggle />
+                </div>
               </>
             )}
           </div>
