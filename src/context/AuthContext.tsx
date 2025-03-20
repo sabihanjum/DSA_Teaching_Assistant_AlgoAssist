@@ -218,6 +218,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1000));
       
+      // Check if the email already exists
+      const existingUsers = JSON.parse(localStorage.getItem('users') || '[]');
+      const emailExists = existingUsers.some((u: User) => u.email.toLowerCase() === email.toLowerCase());
+      
+      if (emailExists) {
+        throw new Error('An account with this email already exists');
+      }
+      
       // In a real app, this would register the user in a backend
       // For demo purposes, we'll create a user with the provided details
       if (email && username && password.length > 5) {
@@ -229,7 +237,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         };
         
         // Store in localStorage for demo persistence
-        const existingUsers = JSON.parse(localStorage.getItem('users') || '[]');
         localStorage.setItem('users', JSON.stringify([...existingUsers, userData]));
         
         setUser(userData);

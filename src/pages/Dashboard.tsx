@@ -15,7 +15,6 @@ const Dashboard: React.FC = () => {
   const [showLevelDialog, setShowLevelDialog] = useState(false);
   const [unlocked, setUnlocked] = useState(false);
 
-  // Mock company problems
   const companyProblems = [
     { id: 101, title: 'Two Sum', company: 'Google', difficulty: 'Easy', locked: false },
     { id: 102, title: 'LRU Cache', company: 'Amazon', difficulty: 'Medium', locked: true },
@@ -24,21 +23,17 @@ const Dashboard: React.FC = () => {
   ];
 
   useEffect(() => {
-    // Record user activity on dashboard visit
     if (isAuthenticated) {
       recordActivity();
       
-      // Check if problems should be unlocked based on streak
       checkUnlockedStatus();
     }
     
-    // Check if it's first login and user doesn't have a level yet
     if (user?.isFirstLogin && !user?.level) {
       setShowLevelDialog(true);
     }
   }, [user, isAuthenticated]);
   
-  // Check if problems should be unlocked based on streak
   const checkUnlockedStatus = () => {
     if (!user) return;
     
@@ -48,7 +43,6 @@ const Dashboard: React.FC = () => {
     if (storedData) {
       try {
         const data = JSON.parse(storedData);
-        // Unlock if current streak is 7 or more
         setUnlocked(data.currentStreak >= 7);
       } catch (error) {
         console.error('Failed to parse streak data', error);
@@ -99,7 +93,6 @@ const Dashboard: React.FC = () => {
     { title: 'Maximum Subarray', difficulty: 'Medium', category: 'Dynamic Programming' },
   ];
 
-  // Hub links for main navigation
   const hubLinks = [
     { 
       title: 'Algorithms', 
@@ -149,7 +142,6 @@ const Dashboard: React.FC = () => {
             </header>
           </FadeIn>
 
-          {/* Hub cards for main navigation */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
             {hubLinks.map((link, i) => (
               <FadeIn key={link.title} delay={i * 100}>
@@ -168,7 +160,6 @@ const Dashboard: React.FC = () => {
             ))}
           </div>
 
-          {/* Streak and Stats Section */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
             <FadeIn delay={100} className="md:col-span-2">
               <Card>
@@ -207,7 +198,6 @@ const Dashboard: React.FC = () => {
             </FadeIn>
           </div>
 
-          {/* Company Problems Section */}
           <FadeIn delay={250}>
             <CompanyProblems 
               problems={companyProblems} 
@@ -252,7 +242,6 @@ const Dashboard: React.FC = () => {
         </div>
       </main>
 
-      {/* Level Selection Dialog */}
       <UserLevelSelection 
         open={showLevelDialog} 
         onSelect={handleLevelSelection} 
