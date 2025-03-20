@@ -36,7 +36,6 @@ const AlgorithmVisualizer: React.FC<AlgorithmVisualizerProps> = ({
   const MIN_SPEED = 1;
   const MAX_SPEED = 10;
 
-  // Helper function to generate random array
   const generateRandomArray = (size: number): ArrayItem[] => {
     const arr: ArrayItem[] = [];
     for (let i = 0; i < size; i++) {
@@ -48,23 +47,19 @@ const AlgorithmVisualizer: React.FC<AlgorithmVisualizerProps> = ({
     return arr;
   };
 
-  // Initialize array
   useEffect(() => {
     const initialArray = generateRandomArray(arraySize);
     setArray(initialArray);
 
     if (algorithm === 'binary-search') {
-      // For binary search, generate steps with a target value
       const target = Math.floor(Math.random() * 100) + 1;
       setSteps(generateBinarySearchSteps(initialArray, target));
     } else {
-      // For sorting algorithms, generate sorting steps
       setSteps(generateSteps(initialArray));
     }
     setCurrentStep(0);
   }, [algorithm, arraySize]);
 
-  // Handle auto play
   useEffect(() => {
     let timeoutId: NodeJS.Timeout;
 
@@ -73,32 +68,28 @@ const AlgorithmVisualizer: React.FC<AlgorithmVisualizerProps> = ({
         setCurrentStep((prevStep) => prevStep + 1);
       }, 1000 / visualizationSpeed);
     } else if (isPlaying && currentStep === steps.length - 1) {
-      setIsPlaying(false); // Stop auto-play when finished
+      setIsPlaying(false);
     }
 
     return () => clearTimeout(timeoutId);
   }, [autoPlay, isPlaying, currentStep, steps.length, visualizationSpeed]);
 
-  // Play/pause visualization
   const togglePlay = () => {
     setIsPlaying((prevState) => !prevState);
   };
 
-  // Move to next step
   const nextStep = () => {
     if (currentStep < steps.length - 1) {
       setCurrentStep((prevStep) => prevStep + 1);
     }
   };
 
-  // Move to previous step
   const prevStep = () => {
     if (currentStep > 0) {
       setCurrentStep((prevStep) => prevStep - 1);
     }
   };
 
-  // Reset visualization
   const resetVisualization = () => {
     setCurrentStep(0);
     setIsPlaying(false);
@@ -106,52 +97,46 @@ const AlgorithmVisualizer: React.FC<AlgorithmVisualizerProps> = ({
     setArray(initialArray);
 
     if (algorithm === 'binary-search') {
-      // For binary search, generate steps with a target value
       const target = Math.floor(Math.random() * 100) + 1;
       setSteps(generateBinarySearchSteps(initialArray, target));
     } else {
-      // For sorting algorithms, generate sorting steps
       setSteps(generateSteps(initialArray));
     }
   };
 
-  // Change speed
   const handleSpeedChange = (value: number[]) => {
     setVisualizationSpeed(value[0]);
   };
 
-  // Generate animation steps for sorting algorithms
   const generateSteps = (arr: ArrayItem[]): ArrayItem[][] => {
     const steps: ArrayItem[][] = [];
     const array = [...arr];
     
-    // Add initial state
     steps.push(array.map(item => ({ 
       value: item.value, 
-      status: "default" as const
+      status: "default" as ArrayItemStatus
     })));
 
     if (algorithm === 'bubble') {
       for (let i = 0; i < array.length; i++) {
         for (let j = 0; j < array.length - i - 1; j++) {
-          const step = array.map(item => ({ ...item, status: "default" as const }));
-          step[j].status = "comparing" as const;
-          step[j + 1].status = "comparing" as const;
+          const step = array.map(item => ({ ...item, status: "default" as ArrayItemStatus }));
+          step[j].status = "comparing";
+          step[j + 1].status = "comparing";
           steps.push([...step]);
 
           if (array[j].value > array[j + 1].value) {
-            // Swap elements
             const temp = array[j];
             array[j] = array[j + 1];
             array[j + 1] = temp;
 
-            const swapStep = array.map(item => ({ ...item, status: "default" as const }));
-            swapStep[j].status = "current" as const;
-            swapStep[j + 1].status = "current" as const;
+            const swapStep = array.map(item => ({ ...item, status: "default" as ArrayItemStatus }));
+            swapStep[j].status = "current";
+            swapStep[j + 1].status = "current";
             steps.push([...swapStep]);
           }
         }
-        array[array.length - i - 1].status = "sorted" as const;
+        array[array.length - i - 1].status = "sorted";
         steps.push([...array.map(item => ({ ...item, status: item.status }))]);
       }
     } else if (algorithm === 'insertion') {
@@ -159,47 +144,46 @@ const AlgorithmVisualizer: React.FC<AlgorithmVisualizerProps> = ({
         let key = array[i];
         let j = i - 1;
 
-        const initialStep = array.map(item => ({ ...item, status: "default" as const }));
-        initialStep[i].status = "current" as const;
+        const initialStep = array.map(item => ({ ...item, status: "default" as ArrayItemStatus }));
+        initialStep[i].status = "current";
         steps.push([...initialStep]);
 
         while (j >= 0 && array[j].value > key.value) {
-          const compareStep = array.map(item => ({ ...item, status: "default" as const }));
-          compareStep[j].status = "comparing" as const;
-          compareStep[j + 1].status = "comparing" as const;
+          const compareStep = array.map(item => ({ ...item, status: "default" as ArrayItemStatus }));
+          compareStep[j].status = "comparing";
+          compareStep[j + 1].status = "comparing";
           steps.push([...compareStep]);
 
           array[j + 1] = array[j];
           
-          const moveStep = array.map(item => ({ ...item, status: "default" as const }));
-          moveStep[j + 1].status = "current" as const;
-          if (j > 0) moveStep[j - 1].status = "comparing" as const;
+          const moveStep = array.map(item => ({ ...item, status: "default" as ArrayItemStatus }));
+          moveStep[j + 1].status = "current";
+          if (j > 0) moveStep[j - 1].status = "comparing";
           steps.push([...moveStep]);
 
           j = j - 1;
         }
         array[j + 1] = key;
 
-        const insertStep = array.map(item => ({ ...item, status: "default" as const }));
-        insertStep[j + 1].status = "sorted" as const;
+        const insertStep = array.map(item => ({ ...item, status: "default" as ArrayItemStatus }));
+        insertStep[j + 1].status = "sorted";
         steps.push([...insertStep]);
       }
 
-      // Mark the entire array as sorted
-      const sortedStep = array.map(item => ({ ...item, status: "sorted" as const }));
+      const sortedStep = array.map(item => ({ ...item, status: "sorted" as ArrayItemStatus }));
       steps.push([...sortedStep]);
     } else if (algorithm === 'selection') {
       for (let i = 0; i < array.length - 1; i++) {
         let minIndex = i;
         
-        const initialStep = array.map(item => ({ ...item, status: "default" as const }));
-        initialStep[i].status = "current" as const;
+        const initialStep = array.map(item => ({ ...item, status: "default" as ArrayItemStatus }));
+        initialStep[i].status = "current";
         steps.push([...initialStep]);
 
         for (let j = i + 1; j < array.length; j++) {
-          const compareStep = array.map(item => ({ ...item, status: "default" as const }));
-          compareStep[i].status = "current" as const;
-          compareStep[j].status = "comparing" as const;
+          const compareStep = array.map(item => ({ ...item, status: "default" as ArrayItemStatus }));
+          compareStep[i].status = "current";
+          compareStep[j].status = "comparing";
           steps.push([...compareStep]);
 
           if (array[j].value < array[minIndex].value) {
@@ -208,27 +192,26 @@ const AlgorithmVisualizer: React.FC<AlgorithmVisualizerProps> = ({
         }
 
         if (minIndex !== i) {
-          const swapStep = array.map(item => ({ ...item, status: "default" as const }));
-          swapStep[i].status = "current" as const;
-          swapStep[minIndex].status = "current" as const;
+          const swapStep = array.map(item => ({ ...item, status: "default" as ArrayItemStatus }));
+          swapStep[i].status = "current";
+          swapStep[minIndex].status = "current";
           steps.push([...swapStep]);
 
-          // Swap elements
           const temp = array[i];
           array[i] = array[minIndex];
           array[minIndex] = temp;
 
-          const swappedStep = array.map(item => ({ ...item, status: "default" as const }));
-          swappedStep[i].status = "sorted" as const;
-          swappedStep[minIndex].status = "current" as const;
+          const swappedStep = array.map(item => ({ ...item, status: "default" as ArrayItemStatus }));
+          swappedStep[i].status = "sorted";
+          swappedStep[minIndex].status = "current";
           steps.push([...swappedStep]);
         }
 
-        array[i].status = "sorted" as const;
+        array[i].status = "sorted";
         steps.push([...array.map(item => ({ ...item, status: item.status }))]);
       }
 
-      array[array.length - 1].status = "sorted" as const;
+      array[array.length - 1].status = "sorted";
       steps.push([...array.map(item => ({ ...item, status: item.status }))]);
     } else if (algorithm === 'merge') {
       const mergeSort = (arr: ArrayItem[]): ArrayItem[] => {
@@ -249,14 +232,13 @@ const AlgorithmVisualizer: React.FC<AlgorithmVisualizerProps> = ({
         let j = 0;
 
         while (i < left.length && j < right.length) {
-          const step = array.map(item => ({ ...item, status: "default" as const }));
+          const step = array.map(item => ({ ...item, status: "default" as ArrayItemStatus }));
           
-          // Find the indices of left and right in the original array
           const leftIndex = array.findIndex(item => item.value === left[i].value);
           const rightIndex = array.findIndex(item => item.value === right[j].value);
 
-          if (leftIndex !== -1) step[leftIndex].status = "comparing" as const;
-          if (rightIndex !== -1) step[rightIndex].status = "comparing" as const;
+          if (leftIndex !== -1) step[leftIndex].status = "comparing";
+          if (rightIndex !== -1) step[rightIndex].status = "comparing";
           
           steps.push([...step]);
 
@@ -288,31 +270,29 @@ const AlgorithmVisualizer: React.FC<AlgorithmVisualizerProps> = ({
         let i = low - 1;
 
         for (let j = low; j <= high - 1; j++) {
-          const step = array.map(item => ({ ...item, status: "default" as const }));
-          step[j].status = "comparing" as const;
-          step[high].status = "current" as const;
+          const step = array.map(item => ({ ...item, status: "default" as ArrayItemStatus }));
+          step[j].status = "comparing";
+          step[high].status = "current";
           steps.push([...step]);
 
           if (arr[j].value < pivot) {
             i++;
-            const swapStep = array.map(item => ({ ...item, status: "default" as const }));
-            swapStep[i].status = "current" as const;
-            swapStep[j].status = "current" as const;
+            const swapStep = array.map(item => ({ ...item, status: "default" as ArrayItemStatus }));
+            swapStep[i].status = "current";
+            swapStep[j].status = "current";
             steps.push([...swapStep]);
 
-            // Swap elements
             const temp = arr[i];
             arr[i] = arr[j];
             arr[j] = temp;
           }
         }
 
-        const finalSwapStep = array.map(item => ({ ...item, status: "default" as const }));
-        finalSwapStep[i + 1].status = "current" as const;
-        finalSwapStep[high].status = "current" as const;
+        const finalSwapStep = array.map(item => ({ ...item, status: "default" as ArrayItemStatus }));
+        finalSwapStep[i + 1].status = "current";
+        finalSwapStep[high].status = "current";
         steps.push([...finalSwapStep]);
 
-        // Swap arr[i+1] and arr[high]
         const temp = arr[i + 1];
         arr[i + 1] = arr[high];
         arr[high] = temp;
@@ -326,42 +306,37 @@ const AlgorithmVisualizer: React.FC<AlgorithmVisualizerProps> = ({
     return steps;
   };
 
-  // Generate steps for binary search
   const generateBinarySearchSteps = (arr: ArrayItem[], target: number): ArrayItem[][] => {
     const steps: ArrayItem[][] = [];
     let left = 0;
     let right = arr.length - 1;
     
-    // Sort the array first
     const sortedArray = [...arr].sort((a, b) => a.value - b.value);
     
-    // Add initial state
     steps.push(sortedArray.map(item => ({ 
       value: item.value, 
-      status: "default" as const
+      status: "default" as ArrayItemStatus
     })));
     
     while (left <= right) {
       const mid = Math.floor((left + right) / 2);
       
-      // Mark current search range
       const step = sortedArray.map((item, index) => {
         if (index === mid) {
-          return { value: item.value, status: "current" as const };
+          return { value: item.value, status: "current" as ArrayItemStatus };
         } else if (index >= left && index <= right) {
-          return { value: item.value, status: "comparing" as const };
+          return { value: item.value, status: "comparing" as ArrayItemStatus };
         } else {
-          return { value: item.value, status: "default" as const };
+          return { value: item.value, status: "default" as ArrayItemStatus };
         }
       });
       
       steps.push(step);
       
       if (sortedArray[mid].value === target) {
-        // Found the target
         steps.push(sortedArray.map((item, index) => ({
           value: item.value,
-          status: index === mid ? "sorted" as const : "default" as const
+          status: index === mid ? "sorted" as ArrayItemStatus : "default" as ArrayItemStatus
         })));
         break;
       } else if (sortedArray[mid].value < target) {
@@ -371,18 +346,16 @@ const AlgorithmVisualizer: React.FC<AlgorithmVisualizerProps> = ({
       }
     }
     
-    // If not found, mark everything as processed
     if (left > right) {
       steps.push(sortedArray.map(item => ({ 
         value: item.value, 
-        status: "default" as const
+        status: "default" as ArrayItemStatus
       })));
     }
     
     return steps;
   };
 
-  // Visualize the array
   return (
     <div className="w-full flex flex-col gap-4 p-4 border rounded-lg">
       <div className="flex items-center justify-between">
@@ -427,7 +400,7 @@ const AlgorithmVisualizer: React.FC<AlgorithmVisualizerProps> = ({
             checked={isAutoPlayEnabled}
             onCheckedChange={(checked) => {
               setIsAutoPlayEnabled(!!checked);
-              setIsPlaying(!!checked); // Start or stop auto-play
+              setIsPlaying(!!checked);
             }}
           />
         </label>
