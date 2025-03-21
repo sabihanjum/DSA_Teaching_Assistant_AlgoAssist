@@ -6,13 +6,13 @@ import Features from '@/components/Features';
 
 const Index = () => {
   return (
-    <>
+    <div className="min-h-screen">
       <Navbar />
       <main>
         <Hero />
         <Features />
       </main>
-    </>
+    </div>
   );
 };
 
