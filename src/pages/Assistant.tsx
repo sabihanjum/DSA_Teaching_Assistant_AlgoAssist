@@ -5,8 +5,10 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/context/AuthContext';
 import FadeIn from '@/components/animations/FadeIn';
 import { Send, Bot, User, AlertCircle, Clock } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
 
 type MessageType = 'user' | 'assistant' | 'system';
 
@@ -22,7 +24,7 @@ const Assistant: React.FC = () => {
     {
       id: '1',
       type: 'system',
-      content: 'Welcome to the DSA Assistant! I can help you with Data Structures and Algorithms questions. What would you like to know?',
+      content: 'Welcome to the DSA Assistant! I\'m powered by Gemini AI and can help you with Data Structures and Algorithms questions. What would you like to learn about today?',
       timestamp: new Date(),
     },
   ]);
@@ -30,6 +32,7 @@ const Assistant: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
+  const { user } = useAuth();
 
   useEffect(() => {
     scrollToBottom();
@@ -39,7 +42,7 @@ const Assistant: React.FC = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
-  const handleSendMessage = () => {
+  const handleSendMessage = async () => {
     if (!input.trim()) return;
 
     // Add user message
@@ -51,32 +54,55 @@ const Assistant: React.FC = () => {
     };
     
     setMessages(prev => [...prev, userMessage]);
+    const currentInput = input;
     setInput('');
     setIsLoading(true);
 
-    // Simulate AI response
-    setTimeout(() => {
-      if (!isDSARelated(input)) {
-        // If question is not DSA related
-        const notDSAResponse: Message = {
-          id: (Date.now() + 1).toString(),
-          type: 'assistant',
-          content: "I'm sorry, but I can only assist with Data Structures and Algorithms related questions. Please ask something related to DSA.",
-          timestamp: new Date(),
-        };
-        setMessages(prev => [...prev, notDSAResponse]);
-      } else {
-        // Generate response if question is DSA related
-        const assistantMessage: Message = {
-          id: (Date.now() + 1).toString(),
-          type: 'assistant',
-          content: generateDSAResponse(input),
-          timestamp: new Date(),
-        };
-        setMessages(prev => [...prev, assistantMessage]);
+    try {
+      // Get conversation history (excluding system messages)
+      const conversationHistory = messages.filter(msg => msg.type !== 'system');
+
+      // Call the Gemini AI edge function
+      const { data, error } = await supabase.functions.invoke('chat-with-gemini', {
+        body: {
+          message: currentInput,
+          conversationHistory: conversationHistory,
+          userLevel: user?.level || 'beginner'
+        }
+      });
+
+      if (error) {
+        throw error;
       }
+
+      const assistantMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        type: 'assistant',
+        content: data.response,
+        timestamp: new Date(),
+      };
+
+      setMessages(prev => [...prev, assistantMessage]);
+    } catch (error) {
+      console.error('Error getting AI response:', error);
+      
+      const errorMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        type: 'assistant',
+        content: 'I apologize, but I\'m having trouble connecting to the AI service right now. Please try again in a moment.',
+        timestamp: new Date(),
+      };
+      
+      setMessages(prev => [...prev, errorMessage]);
+      
+      toast({
+        title: "Connection Error",
+        description: "Failed to get AI response. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
       setIsLoading(false);
-    }, 1000);
+    }
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -84,45 +110,6 @@ const Assistant: React.FC = () => {
       e.preventDefault();
       handleSendMessage();
     }
-  };
-
-  // Simple check to determine if the question is DSA related
-  const isDSARelated = (question: string): boolean => {
-    const dsaKeywords = [
-      'algorithm', 'data structure', 'time complexity', 'space complexity', 
-      'array', 'linked list', 'stack', 'queue', 'tree', 'graph', 'hash', 
-      'sort', 'search', 'binary', 'dynamic programming', 'recursion', 'greedy',
-      'big o', 'o(n)', 'bfs', 'dfs', 'backtracking', 'heap', 'trie', 
-      'dijkstra', 'bellman', 'kruskal', 'prim', 'topological', 'kmp',
-      'leetcode', 'problem', 'coding', 'iteration', 'traversal', 'inorder', 'preorder',
-      'postorder', 'complexity'
-    ];
-    
-    const lowerQuestion = question.toLowerCase();
-    return dsaKeywords.some(keyword => lowerQuestion.includes(keyword));
-  };
-
-  // Simple response generation based on keywords
-  const generateDSAResponse = (question: string): string => {
-    const lowerQuestion = question.toLowerCase();
-    
-    if (lowerQuestion.includes('time complexity')) {
-      return "Time complexity is a measure of the amount of time an algorithm takes to run as a function of the input size. It's typically expressed using Big O notation like O(n) or O(n²).";
-    } else if (lowerQuestion.includes('space complexity')) {
-      return "Space complexity measures the amount of memory space an algorithm requires as a function of the input size. Like time complexity, it's usually expressed in Big O notation.";
-    } else if (lowerQuestion.includes('array')) {
-      return "An array is a basic data structure that stores elements of the same type in contiguous memory locations. It provides O(1) access time but may require O(n) time for insertions or deletions.";
-    } else if (lowerQuestion.includes('linked list')) {
-      return "A linked list is a linear data structure where elements are stored in nodes. Each node points to the next node in the sequence. Linked lists provide O(1) insertion and deletion at any position but O(n) access time.";
-    } else if (lowerQuestion.includes('binary search')) {
-      return "Binary search is an efficient algorithm for finding an element in a sorted array. It has O(log n) time complexity and works by repeatedly dividing the search space in half.";
-    } else if (lowerQuestion.includes('sort')) {
-      return "Sorting algorithms arrange elements in a specific order. Common algorithms include Bubble Sort (O(n²)), Merge Sort (O(n log n)), Quick Sort (O(n log n) average case), and Heap Sort (O(n log n)).";
-    }
-    
-    return "That's a great question about " + 
-      question.split(' ').slice(0, 3).join(' ') + 
-      "... Let me explain. In DSA, this concept is important because it helps optimize algorithm performance and efficiency. Would you like me to elaborate on specific aspects or provide an example?";
   };
 
   return (
@@ -133,7 +120,10 @@ const Assistant: React.FC = () => {
           <FadeIn>
             <header className="mb-6">
               <h1 className="text-3xl font-semibold tracking-tight">DSA Assistant</h1>
-              <p className="text-muted-foreground mt-1">Ask any question related to Data Structures & Algorithms</p>
+              <p className="text-muted-foreground mt-1">
+                AI-powered assistant for Data Structures & Algorithms
+                {user?.level && <span className="ml-2 text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full">Level: {user.level}</span>}
+              </p>
             </header>
           </FadeIn>
 
@@ -141,7 +131,7 @@ const Assistant: React.FC = () => {
             <CardHeader className="border-b">
               <CardTitle className="flex items-center gap-2">
                 <Bot className="h-5 w-5 text-primary" />
-                Ask me about DSA
+                Powered by Gemini AI
               </CardTitle>
             </CardHeader>
             <CardContent className="flex-grow flex flex-col p-0">
@@ -202,7 +192,7 @@ const Assistant: React.FC = () => {
               <div className="p-4 border-t">
                 <div className="flex gap-2">
                   <Input
-                    placeholder="Ask a question about data structures or algorithms..."
+                    placeholder="Ask me anything about data structures or algorithms..."
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
                     onKeyDown={handleKeyDown}
@@ -219,7 +209,7 @@ const Assistant: React.FC = () => {
                   </Button>
                 </div>
                 <div className="text-xs text-muted-foreground mt-2 italic">
-                  Note: This assistant only answers questions related to Data Structures & Algorithms.
+                  AI-powered DSA assistant • Responses may take a moment to generate
                 </div>
               </div>
             </CardContent>
