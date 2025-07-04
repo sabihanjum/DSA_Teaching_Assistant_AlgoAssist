@@ -1,6 +1,6 @@
 
 import { createContext, useContext, useEffect, useState } from "react";
-import { useTheme as useNextTheme } from "next-themes";
+import { ThemeProvider as NextThemesProvider } from "next-themes";
 
 type Theme = "dark" | "light" | "system";
 
@@ -16,21 +16,10 @@ type ThemeContextType = {
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
-export function ThemeProvider({ children }: ThemeProviderProps) {
+function ThemeProviderInner({ children }: ThemeProviderProps) {
   const [mounted, setMounted] = useState(false);
-  const { theme, setTheme, resolvedTheme } = useNextTheme();
   
-  // Apply dark class to document when theme changes
-  useEffect(() => {
-    const isDark = resolvedTheme === "dark";
-    if (isDark) {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
-  }, [resolvedTheme]);
-
-  // Only show the UI after the theme is resolved to prevent flashing
+  // Only show the UI after the component is mounted to prevent hydration issues
   useEffect(() => {
     setMounted(true);
   }, []);
@@ -39,25 +28,31 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
     return <>{children}</>;
   }
 
-  const isDarkMode = resolvedTheme === "dark";
+  return <>{children}</>;
+}
 
+export function ThemeProvider({ children }: ThemeProviderProps) {
   return (
-    <ThemeContext.Provider 
-      value={{ 
-        theme: (theme as Theme) || "system", 
-        setTheme: (theme: Theme) => setTheme(theme),
-        isDarkMode
-      }}
+    <NextThemesProvider
+      attribute="class"
+      defaultTheme="system"
+      enableSystem
+      disableTransitionOnChange
     >
-      {children}
-    </ThemeContext.Provider>
+      <ThemeProviderInner>{children}</ThemeProviderInner>
+    </NextThemesProvider>
   );
 }
 
 export const useTheme = () => {
-  const context = useContext(ThemeContext);
-  if (context === undefined) {
-    throw new Error("useTheme must be used within a ThemeProvider");
-  }
-  return context;
+  // Import useTheme from next-themes directly
+  const { theme, setTheme, resolvedTheme } = require("next-themes").useTheme();
+  
+  const isDarkMode = resolvedTheme === "dark";
+
+  return {
+    theme: (theme as Theme) || "system",
+    setTheme: (theme: Theme) => setTheme(theme),
+    isDarkMode
+  };
 };
