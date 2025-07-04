@@ -1,6 +1,6 @@
 
 import { createContext, useContext, useEffect, useState } from "react";
-import { ThemeProvider as NextThemesProvider } from "next-themes";
+import { ThemeProvider as NextThemesProvider, useTheme as useNextTheme } from "next-themes";
 
 type Theme = "dark" | "light" | "system";
 
@@ -18,6 +18,7 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 function ThemeProviderInner({ children }: ThemeProviderProps) {
   const [mounted, setMounted] = useState(false);
+  const { theme, setTheme, resolvedTheme } = useNextTheme();
   
   // Only show the UI after the component is mounted to prevent hydration issues
   useEffect(() => {
@@ -28,7 +29,19 @@ function ThemeProviderInner({ children }: ThemeProviderProps) {
     return <>{children}</>;
   }
 
-  return <>{children}</>;
+  const isDarkMode = resolvedTheme === "dark";
+
+  return (
+    <ThemeContext.Provider 
+      value={{ 
+        theme: (theme as Theme) || "system", 
+        setTheme: (theme: Theme) => setTheme(theme),
+        isDarkMode
+      }}
+    >
+      {children}
+    </ThemeContext.Provider>
+  );
 }
 
 export function ThemeProvider({ children }: ThemeProviderProps) {
@@ -45,14 +58,9 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
 }
 
 export const useTheme = () => {
-  // Import useTheme from next-themes directly
-  const { theme, setTheme, resolvedTheme } = require("next-themes").useTheme();
-  
-  const isDarkMode = resolvedTheme === "dark";
-
-  return {
-    theme: (theme as Theme) || "system",
-    setTheme: (theme: Theme) => setTheme(theme),
-    isDarkMode
-  };
+  const context = useContext(ThemeContext);
+  if (context === undefined) {
+    throw new Error("useTheme must be used within a ThemeProvider");
+  }
+  return context;
 };
